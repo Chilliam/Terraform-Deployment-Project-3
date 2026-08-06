@@ -170,6 +170,58 @@ resource "azurerm_linux_virtual_machine" "web_vm" {
   }
 }
 
+resource "azurerm_network_interface" "web2_nic" {
+  name                = "vm-web2-${var.environment_name}-nic"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "ipconfig1"
+    subnet_id                     = azurerm_subnet.web.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
+resource "azurerm_linux_virtual_machine" "web2_vm" {
+  name                   = "vm-web2-${var.environment_name}"
+  location               = azurerm_resource_group.rg.location
+  resource_group_name    = azurerm_resource_group.rg.name
+  size                   = "Standard_B1s"
+  admin_username         = var.admin_username
+  network_interface_ids  = [azurerm_network_interface.web2_nic.id]
+
+  admin_ssh_key {
+    username   = var.admin_username
+    public_key = var.ssh_public_key
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts-gen2"
+    version   = "latest"
+  }
+
+  custom_data = base64encode(<<-EOF
+    #!/bin/bash
+    apt update
+    apt install -y nginx
+    echo "<h1>Server 2 - vm-web2-${var.environment_name}</h1>" > /var/www/html/index.nginx-debian.html
+  EOF
+  )
+}
+
+resource "azurerm_network_interface_backend_address_pool_association" "web2_nic_bp_assoc" {
+  network_interface_id    = azurerm_network_interface.web2_nic.id
+  ip_configuration_name   = "ipconfig1"
+  backend_address_pool_id = azurerm_lb_backend_address_pool.bp_web.id
+}
+
 resource "azurerm_linux_virtual_machine" "data_vm" {
   name                = "vm-data-${var.environment_name}"
   location            = azurerm_resource_group.rg.location
