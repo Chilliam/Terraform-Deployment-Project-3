@@ -5,6 +5,7 @@
 # sensitive values in plain text depending on what you deployed
 *.tfstate
 *.tfstate.*
+*.tfstate.backup
 
 # Crash log files
 crash.log
