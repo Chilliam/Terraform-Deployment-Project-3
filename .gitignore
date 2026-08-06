@@ -1,0 +1,23 @@
+# Local .terraform directories (downloaded provider plugins - large, regenerable)
+**/.terraform/*
+
+# Terraform state files - contain resource IDs, IP addresses, and can contain
+# sensitive values in plain text depending on what you deployed
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude all .tfvars files, since they commonly contain sensitive data,
+# such as your SSH public key in this project
+*.tfvars
+*.tfvars.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+# Lock file - opinions differ; see note below on whether to commit this one
+#.terraform.lock.hcl
